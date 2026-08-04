@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wi-Fi MIX 24h</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            /* Fundo escuro combinando com a vibe do pub */
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+        }
+
+        .card {
+            background: #1e1e1e;
+            width: 90%;
+            max-width: 400px;
+            padding: 40px 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border-top: 5px solid #ffcc00; /* Detalhe amarelo na borda */
+        }
+
+        .icone-pub {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #ffcc00; /* Amarelo do logo da Mix 24h */
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p {
+            color: #cccccc;
+            font-size: 15px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* TELA 1: Bloqueada */
+        #tela-bloqueada { display: block; }
+
+        .btn-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-instagram:active { transform: scale(0.95); }
+        .btn-instagram:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* TELA 2: Liberada (Oculta por padrão) */
+        #tela-liberada { display: none; }
+
+        .senha-box {
+            background-color: #2a2a2a;
+            border: 2px dashed #ffcc00;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .senha-box span {
+            display: block;
+            font-size: 14px;
+            color: #ffcc00;
+            margin-bottom: 5px;
+        }
+
+        .senha-box strong {
+            font-size: 32px;
+            color: #ffffff;
+            letter-spacing: 2px;
+        }
+
+        .btn-sucesso {
+            background-color: #ffcc00;
+            color: #121212;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 15px; /* Espaço para o novo botão */
+        }
+        
+        .btn-sucesso:active { background-color: #e6b800; }
+
+        .btn-cardapio {
+            background-color: transparent;
+            color: #ffcc00;
+            border: 2px solid #ffcc00;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .btn-cardapio:active { background-color: rgba(255, 204, 0, 0.1); }
+
+        /* ESTILO DO TOAST NOTIFICATION (O aviso elegante) */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #ffcc00;
+            color: #121212;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 20px;
+            font-weight: bold;
+            transform: translateX(-50%);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transition: opacity 0.4s, bottom 0.4s;
+        }
+
+        .toast.mostrar {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="icone-pub">🍻🛒</div>
+        <h2>MIX 24 HORAS</h2>
+        
+        <!-- TELA DE AÇÃO -->
+        <div id="tela-bloqueada">
+            <p>Quer postar aquele stories curtindo a música ao vivo? Siga nosso perfil para liberar o Wi-Fi!</p>
+            <button id="btn-insta" class="btn-instagram" onclick="acessarInstagram()">
+                📷 Seguir @mix24horas_
+            </button>
+        </div>
+
+        <!-- TELA DE SUCESSO -->
+        <div id="tela-liberada">
+            <p style="color: #ffcc00; font-weight: bold; margin-bottom: 10px;">✅ Wi-Fi Liberado!</p>
+            <p>Conecte-se na rede <b>MIX 24H VISITANTES</b> usando a senha abaixo:</p>
+            
+            <div class="senha-box">
+                <span>SENHA DA REDE</span>
+                <strong>copao24h</strong>
+            </div>
+
+            <button class="btn-sucesso" onclick="copiarSenha()">Copiar Senha</button>
+            <a href="https://linktr.ee/stilomix24h" target="_blank" class="btn-cardapio">Ver Cardápio Digital 🍔</a>
+        </div>
+    </div>
+
+    <!-- Toast escondido que vai aparecer no lugar do alert() -->
+    <div id="toast-notificacao" class="toast">✅ Senha copiada com sucesso!</div>
+
+    <script>
+        function acessarInstagram() {
+            let botao = document.getElementById("btn-insta");
+            
+            botao.innerText = "⏳ Aguardando verificação...";
+            botao.disabled = true;
+
+            // Abre o perfil exato da Mix 24 Horas
+            window.open("https://www.instagram.com/mix24horas_?igsh=MXNscTNjbTdramFuMw==");
+
+            // Cronômetro de 6 segundos
+            setTimeout(() => {
+                document.getElementById("tela-bloqueada").style.display = "none";
+                document.getElementById("tela-liberada").style.display = "block";
+            }, 6000);
+        }
+
+        function copiarSenha() {
+    navigator.clipboard.writeText("copao24h").then(() => {
+        // 1. Mostra a animação bonita do Toast
+        let toast = document.getElementById("toast-notificacao");
+        toast.className = "toast mostrar";
+        
+        // Esconde a notificação depois de 3 segundos
+        setTimeout(function() {
+            toast.className = toast.className.replace("mostrar", "");
+        }, 3000);
+
+        // 2. A "Mágica" do Deep Link (atrasada em 1.5s para dar tempo de ler o aviso)
+        setTimeout(() => {
+            // Descobre qual é o sistema do celular do cliente
+            let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            let isAndroid = /Android/.test(navigator.userAgent);
+
+            if (isIOS) {
+                // Tenta forçar o iPhone a abrir os Ajustes de Wi-Fi
+                window.location.href = "App-Prefs:root=WIFI";
+            } else if (isAndroid) {
+                // Tenta forçar o Android a abrir as Configurações de Wi-Fi usando Intent
+                window.location.href = "intent:#Intent;action=android.settings.WIFI_SETTINGS;end";
+            } else {
+                // Se for computador, não faz nada
+                console.log("Deep link não suportado neste dispositivo.");
+            }
+        }, 1500); // 1500 milissegundos = 1.5 segundos
+    });
+}
+
+    </script>
+</body>
+</html>
