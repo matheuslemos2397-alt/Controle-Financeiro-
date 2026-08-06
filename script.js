@@ -5,9 +5,16 @@ const CONFIG = {
     nomeRede: 'MIX 24H VISITANTES'
 };
 
+// Detecta se está rodando como app standalone (adicionado à tela inicial)
+const isStandalone = (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+);
+
 // Criar partículas premium
 function criarParticulas() {
     const container = document.getElementById('particles');
+    if (!container) return;
     const colors = ['gold', 'orange'];
     for (let i = 0; i < 40; i++) {
         const p = document.createElement('div');
@@ -18,6 +25,25 @@ function criarParticulas() {
         p.style.animation = `floatUp ${12 + Math.random() * 10}s linear infinite`;
         p.style.animationDelay = Math.random() * 15 + 's';
         container.appendChild(p);
+    }
+}
+
+// Abre link externo funcionando tanto no navegador quanto em standalone
+function abrirLinkExterno(event, url) {
+    if (event) event.preventDefault();
+
+    if (isStandalone) {
+        // Em modo standalone, window.open pode ser bloqueado
+        // Usamos um link temporário para forçar abertura no navegador
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
     }
 }
 
@@ -45,8 +71,9 @@ function typeSenha() {
     const cursor = document.getElementById('cursor');
     const senha = CONFIG.senha;
     let i = 0;
+    if (!display) return;
     display.textContent = '';
-    cursor.style.display = 'inline-block';
+    if (cursor) cursor.style.display = 'inline-block';
 
     const interval = setInterval(() => {
         if (i < senha.length) {
@@ -54,11 +81,12 @@ function typeSenha() {
             i++;
         } else {
             clearInterval(interval);
-            cursor.style.display = 'none';
-            document.getElementById('scanner-line').classList.add('active');
-            setTimeout(() => {
-                document.getElementById('scanner-line').classList.remove('active');
-            }, 1500);
+            if (cursor) cursor.style.display = 'none';
+            const scanner = document.getElementById('scanner-line');
+            if (scanner) {
+                scanner.classList.add('active');
+                setTimeout(() => scanner.classList.remove('active'), 1500);
+            }
         }
     }, 120);
 }
@@ -66,6 +94,7 @@ function typeSenha() {
 // Confetti celebration
 function launchConfetti() {
     const container = document.getElementById('confetti-container');
+    if (!container) return;
     const colors = ['#ffcc00', '#ff9500', '#ff6b00', '#ffd700', '#ffa500', '#ffffff'];
     const shapes = ['square', 'circle', 'triangle'];
 
@@ -92,8 +121,10 @@ function launchConfetti() {
 // Glitch effect
 function triggerGlitch() {
     const overlay = document.getElementById('glitch-overlay');
-    overlay.classList.add('active');
-    setTimeout(() => overlay.classList.remove('active'), 300);
+    if (overlay) {
+        overlay.classList.add('active');
+        setTimeout(() => overlay.classList.remove('active'), 300);
+    }
 }
 
 // Acessar Instagram
@@ -106,11 +137,12 @@ function acessarInstagram(event) {
     const progressCircle = document.getElementById('progress-circle');
     const timerDisplay = document.getElementById('timer-display');
 
-    botao.disabled = true;
-    btnText.innerHTML = '<span class="spinner"></span> Verificando...';
-    progressRing.classList.add('active');
+    if (botao) botao.disabled = true;
+    if (btnText) btnText.innerHTML = '<span class="spinner"></span> Verificando...';
+    if (progressRing) progressRing.classList.add('active');
 
-    window.open(CONFIG.instagramUrl, '_blank');
+    // Abre Instagram usando função que funciona em standalone
+    abrirLinkExterno(null, CONFIG.instagramUrl);
 
     const circumference = 2 * Math.PI * 45;
     let progress = 0;
@@ -119,30 +151,34 @@ function acessarInstagram(event) {
     const interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
         progress = Math.min(elapsed / CONFIG.tempoVerificacao, 1);
-        const offset = circumference - (progress * circumference);
-        progressCircle.style.strokeDashoffset = offset;
+        if (progressCircle) {
+            const offset = circumference - (progress * circumference);
+            progressCircle.style.strokeDashoffset = offset;
+        }
 
         const remaining = Math.ceil((CONFIG.tempoVerificacao - elapsed) / 1000);
-        if (remaining > 0) {
+        if (timerDisplay && remaining > 0) {
             timerDisplay.textContent = `⏱️ ${remaining}s`;
         }
     }, 50);
 
     setTimeout(() => {
         clearInterval(interval);
-        timerDisplay.textContent = '';
+        if (timerDisplay) timerDisplay.textContent = '';
         triggerGlitch();
 
         setTimeout(() => {
             const telaBloqueada = document.getElementById('tela-bloqueada');
             const telaLiberada = document.getElementById('tela-liberada');
 
-            telaBloqueada.style.opacity = '0';
-            telaBloqueada.style.transform = 'translateY(-30px) scale(0.95)';
+            if (telaBloqueada) {
+                telaBloqueada.style.opacity = '0';
+                telaBloqueada.style.transform = 'translateY(-30px) scale(0.95)';
+            }
 
             setTimeout(() => {
-                telaBloqueada.classList.add('hidden');
-                telaLiberada.classList.remove('hidden');
+                if (telaBloqueada) telaBloqueada.classList.add('hidden');
+                if (telaLiberada) telaLiberada.classList.remove('hidden');
                 launchConfetti();
 
                 setTimeout(() => {
@@ -160,12 +196,12 @@ function copiarSenha() {
     const copyText = document.getElementById('copy-text');
 
     const copiar = () => {
-        copyText.innerHTML = '✅ Copiado!';
-        toastMsg.textContent = 'Senha copiada! Abrindo Wi-Fi...';
+        if (copyText) copyText.innerHTML = '✅ Copiado!';
+        if (toastMsg) toastMsg.textContent = 'Senha copiada! Abrindo Wi-Fi...';
         showToast();
 
         setTimeout(() => {
-            copyText.innerHTML = '📋 Copiar Senha';
+            if (copyText) copyText.innerHTML = '📋 Copiar Senha';
             abrirConfiguracoesWiFi();
         }, 2500);
     };
@@ -209,16 +245,21 @@ function abrirConfiguracoesWiFi() {
 
 function showToast() {
     const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3500);
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
 }
 
 function showToastCustom(msg) {
     const toast = document.getElementById('toast');
     const toastMsg = document.getElementById('toast-msg');
-    toastMsg.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 4000);
+    if (toastMsg) toastMsg.textContent = msg;
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
 }
 
-window.onload = criarParticulas;
+// Usa DOMContentLoaded (mais confiável que window.onload para PWA)
+document.addEventListener('DOMContentLoaded', criarParticulas);

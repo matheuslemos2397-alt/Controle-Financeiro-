@@ -8,13 +8,15 @@
 body {
     font-family: 'Poppins', sans-serif;
     background: #050505;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh; /* suporte a dynamic viewport height */
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     position: relative;
     -webkit-font-smoothing: antialiased;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Background animado com gradiente */
@@ -245,6 +247,8 @@ p {
         0 10px 30px rgba(220, 39, 67, 0.3),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     animation: gradientShift 4s ease infinite;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 @keyframes gradientShift {
@@ -404,6 +408,7 @@ p {
         0 0 30px rgba(255, 204, 0, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .senha-box:hover {
@@ -491,6 +496,8 @@ p {
     position: relative;
     overflow: hidden;
     animation: gradientShift 3s ease infinite;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .btn-sucesso:hover {
@@ -517,6 +524,9 @@ p {
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .btn-cardapio::before {
@@ -715,4 +725,23 @@ p {
     .card { padding: 40px 25px; }
     h2 { font-size: 24px; letter-spacing: 2px; }
     .senha-box strong { font-size: 32px; letter-spacing: 4px; }
+}
+
+/* Standalone / PWA specific fixes */
+@media all and (display-mode: standalone) {
+    body {
+        /* Garante que o app preencha toda a tela em standalone */
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    .card {
+        /* Ajuste sutil para não ficar colado na notch */
+        margin-top: env(safe-area-inset-top);
+    }
+
+    .toast.show {
+        /* Ajusta posição do toast para não ficar atrás da home indicator */
+        bottom: calc(50px + env(safe-area-inset-bottom));
+    }
 }
